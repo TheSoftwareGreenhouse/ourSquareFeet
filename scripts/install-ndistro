@@ -1,0 +1,4 @@
+#!/bin/sh
+echo installing ndistro
+cd /usr/local/bin && curl https://github.com/visionmedia/ndistro/raw/master/install | sh
+
