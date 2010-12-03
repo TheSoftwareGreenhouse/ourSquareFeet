@@ -1,0 +1,8 @@
+.* # Ignore all dotfiles
+
+!.gitignore # except for .gitignore
+!.ndistro # except for .ndistro
+
+*~ # ignore emacs backup files
+
+bin # ignore the bin folder - created by ndistro
