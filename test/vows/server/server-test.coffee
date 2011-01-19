@@ -2,8 +2,6 @@ vows = require 'vows'
 assert = require 'assert'
 shims = require './shims'
 
-#server.listen '8080'
-
 #getResponse = (path, nextStep) ->
 #  client = http.createClient '8080'
 #  request = client.request path
@@ -25,6 +23,8 @@ vows.describe('the Our Square Feet server').addBatch({
     'The client receives a response': (err, res) ->
       assert.isString res
     'The response is correct': (err, res) ->
-      assert.include res, 'Hello World'
+      assert.include res, '<html>'
+      assert.include res, '<h1>Hello World</h1>'
+      assert.include res, '</html>'
   }
 }).export module

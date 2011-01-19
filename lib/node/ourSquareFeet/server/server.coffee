@@ -1,7 +1,8 @@
-http = require "http"
+http = require 'http'
+express = require 'express'
 
-server = http.createServer (request, response) ->
-  response.writeHead 200, {"Content-Type": "text/plain"}
-  response.end "Hello World!\n"
+app = express.createServer()
+app.get '/', (request, response) ->
+  response.render "helloworld.haml"
 
-module.exports = server
+module.exports = app
