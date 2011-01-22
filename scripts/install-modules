@@ -3,3 +3,4 @@ echo installing bare minimum distro
 ndistro gogza bareminimum
 ndistro gogza webapp
 
+./modules/express/install.sh

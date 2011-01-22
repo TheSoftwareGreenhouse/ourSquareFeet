@@ -1,3 +1,4 @@
+*~
 .* # Ignore all dotfiles
 
 !.gitignore # except for .gitignore
@@ -6,3 +7,5 @@
 *~ # ignore emacs backup files
 
 bin # ignore the bin folder - created by ndistro
+
+lib/node/*.js
