@@ -1,0 +1,132 @@
+/*  Our Square Feet Main stylesheet */
+
+@font-face {
+    font-family: 'LoveYaLikeASister';
+    src: url('/fonts/LoveYaLikeASister.ttf');
+}
+
+/* Colors */
+
+@barColor:#d0dddd;
+@shadowColor:#222;
+
+/* Borders */
+
+@border: 2px solid #000;
+
+/* CSS3 Effects */
+
+.boxShadow(@offsetTop: 3px, @offsetLeft: 3px, @depth: 5px, @color: @shadowColor) {
+  -webkit-box-shadow: @offsetTop @offsetLeft @depth @color;
+}
+
+.borderRadius(@radius:10px) {
+    -webkit-border-radius: @radius;    
+}
+
+.bar em {
+    font-family: 'LoveYaLikeASister';
+    font-size: 0.75em;
+}
+
+h1 {
+  text-shadow: 3px 3px 5px #000;
+  -webkit-border-radius: 20px;
+  background-image: -webkit-gradient(linear,left top, left bottom, color-stop(0, #07407C), color-stop(1, #aaaaaa));
+  font-size: 5em;
+}
+
+.bar {
+    position: fixed;
+    width: 95%;
+    margin-left: 20px;
+    border: @border;
+    background-color: @barColor;
+    .boxShadow();
+    .borderRadius();
+}
+
+#toolBar {
+    top: 0;
+    margin-top: 10px;
+}
+
+#toolBar .title {
+    font-family: 'LoveYaLikeASister';
+    margin-left: 20px;
+    float: left;
+    font-size: 0.6em;
+}
+
+#toolBar .buttons {
+    margin-right: 20px;
+    float: right;
+    font-size: 0.75em;
+    min-height: 100%;
+}
+
+.buttons ul {
+    list-style-type: none;
+    display: inline;
+    height: 100%;
+}
+
+.buttons ul li {
+    display: inline;
+    border-left: 2px solid #000;
+    border-right: 2px solid #000;
+    margin-left: 1px;
+    margin-right: 1px;
+    padding-left: 3px;
+    padding-right: 3px;
+    float: left;
+    height: 100%;
+}
+
+#toolBar ul.zoom li {
+    list-style-type: none;
+    display:list-item;
+}
+
+#canvas {
+    width: 3000px;
+    height: 2000px;
+}
+
+#toolBar .buttons {
+    float: right;
+    margin-right: 20px; 
+    margin-bottom: 0px;
+}
+
+#content {
+    width: 100%;
+}
+
+#statusBar {
+    bottom: 0;
+    margin-bottom: 10px;
+}
+
+#statusBar ul {
+    list-style-type: none;
+}
+
+#statusBar .info {
+    float: left;
+    margin-left: 20px;
+}
+
+#statusBar .buttons {
+    float: right;
+    margin-right: 20px;
+}
+
+.buttons {
+    span {
+	&:hover {
+	    background-color: @barColor - #222;
+	}
+    }
+}
+    

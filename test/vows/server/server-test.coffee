@@ -26,5 +26,19 @@ vows.describe('the Our Square Feet server').addBatch({
       assert.include res, '<html>'
       assert.include res, '<h1>Hello World</h1>'
       assert.include res, '</html>'
+    'The response contains gets the less-js js file': (err, res) ->
+      assert.include res, '<script src="/javascript/less-1.0.21.min.js">'
+    'The response contains a link to the main stylesheet': (err, res) ->
+      assert.include res, 'href="/stylesheets/main.less"'
+  }
+  'when serving less-js': {
+    topic: () -> getResponse('/javascript/less-1.0.21.min.js', this.callback)
+    'The response is less-js': (err, res) ->
+      assert.include res, 'LESS - Leaner CSS'
+  }
+  'when serving up some less stylesheets': {
+    topic: () -> getResponse('/stylesheets/main.less', this.callback)
+    'The response is the main stylesheet': (err, res) ->
+      assert.include res, 'Our Square Feet Main stylesheet'
   }
 }).export module
