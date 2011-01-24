@@ -1,5 +1,5 @@
 require('connect');
 require('express');
-require('haml');
+require('jade');
 
 console.log('all modules ok');
