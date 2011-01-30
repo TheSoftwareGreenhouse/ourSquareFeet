@@ -1,0 +1,21 @@
+{
+  "name": "ourSquareFeet",
+  "description": "Online square foot garden planner",
+  "version": "0.1.0",
+  "author": "Gordon McAllister <gordon@thesoftwaregreenhouse.co.uk>",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/TheSoftwareGreenhouse/ourSquareFeet.git"
+  },
+  "dependencies": {
+    "coffee-script": ">= 1.0.0",
+    "express":       ">= 2.1.1",
+    "forever":       ">= 0.4.1",
+    "jade":          ">= 0.10.1",
+    "vows":          ">= 0.5.3"
+  },
+  "engines": { 
+    "node": ">= 0.3.6"
+  }
+}  
+  
