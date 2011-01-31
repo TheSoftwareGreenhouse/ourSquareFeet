@@ -1,14 +1,15 @@
 /*  Our Square Feet Main stylesheet */
 
 @font-face {
-    font-family: 'LoveYaLikeASister';
-    src: url('/fonts/LoveYaLikeASister.ttf');
+    font-family: 'CompleteInHim';
+    src: url('/fonts/CompleteInHim.ttf');
 }
 
 /* Colors */
 
-@barColor:#d0dddd;
+@barColor:#b0ffb0;
 @shadowColor:#222;
+@textColor:#000;
 
 /* Borders */
 
@@ -17,23 +18,24 @@
 /* CSS3 Effects */
 
 .boxShadow(@offsetTop: 3px, @offsetLeft: 3px, @depth: 5px, @color: @shadowColor) {
-  -webkit-box-shadow: @offsetTop @offsetLeft @depth @color;
+    -webkit-box-shadow: @offsetTop @offsetLeft @depth @color;
 }
 
 .borderRadius(@radius:10px) {
     -webkit-border-radius: @radius;    
 }
 
-.bar em {
-    font-family: 'LoveYaLikeASister';
-    font-size: 0.75em;
+/* Basic styles */
+
+div {
+    font-family: helvetica, arial, freesans, clean, sans-serif    
 }
 
-h1 {
-  text-shadow: 3px 3px 5px #000;
-  -webkit-border-radius: 20px;
-  background-image: -webkit-gradient(linear,left top, left bottom, color-stop(0, #07407C), color-stop(1, #aaaaaa));
-  font-size: 5em;
+.bar em {
+    font-family: 'CompleteInHim';
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-right: 12px;
 }
 
 .bar {
@@ -42,61 +44,99 @@ h1 {
     margin-left: 20px;
     border: @border;
     background-color: @barColor;
+    opacity: 0.8;
     .boxShadow();
     .borderRadius();
+}
+
+#canvas {
+    min-width: 3000px;
+    min-height: 2000px;
+    width: 3000px;
+    height: 2000px;
+}
+
+.message {
+    position: fixed;
+    width: 60%;
+    margin-left:20%;
+    margin-right:20%;
+    margin-top: 25%;
+    padding-top: 10px;
+    padding-bottom: 20px;
+    z-index:1;
+    top: 0;
+    border: @border;
+    background-color: @barColor;
+    opacity: 0.9;
+    .boxShadow();
+    .borderRadius();
+}
+
+.message .content {
+  margin: 20px;
+  h1 {
+    font-family: 'CompleteInHim';
+    font-size: 3em;
+    margin: 0.3em 0em;
+  }
 }
 
 #toolBar {
     top: 0;
     margin-top: 10px;
+    .title {
+        font-family: 'CompleteInHim';
+        margin-left: 20px;
+        margin-top: 0.25em;
+        margin-bottom: 0.1em;
+        float: left;
+        font-size: 1.75em;
+        h1 {
+            margin-top: 0px;
+            margin-bottom: 0px;
+            a {
+                &:link {
+                  text-decoration:none;
+		  color: @textColor;
+                }
+                &:visited {
+                  text-decoration: none;
+                  color: @textColor;
+                }
+            }
+        }
+    }
 }
 
-#toolBar .title {
-    font-family: 'LoveYaLikeASister';
-    margin-left: 20px;
-    float: left;
-    font-size: 0.6em;
-}
-
-#toolBar .buttons {
+.bar .buttons {
+    margin-top: 1em;
     margin-right: 20px;
     float: right;
     font-size: 0.75em;
     min-height: 100%;
 }
 
-.buttons ul {
-    list-style-type: none;
-    display: inline;
-    height: 100%;
+#statusBar.bar .buttons {
+    margin-top: 0.45em; 
 }
 
-.buttons ul li {
-    display: inline;
-    border-left: 2px solid #000;
-    border-right: 2px solid #000;
-    margin-left: 1px;
-    margin-right: 1px;
-    padding-left: 3px;
-    padding-right: 3px;
-    float: left;
-    height: 100%;
-}
-
-#toolBar ul.zoom li {
-    list-style-type: none;
-    display:list-item;
+button {
+    padding-left: 15px;
+    padding-right: 15px;
+    margin-left: 2px;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    background-color: @barColor + #111;
+    border: @border;
+    font-size: 1.75em;
+    .borderRadius();
+    .boxShadow(1px, 1px, 3px);
 }
 
 #canvas {
     width: 3000px;
     height: 2000px;
-}
-
-#toolBar .buttons {
-    float: right;
-    margin-right: 20px; 
-    margin-bottom: 0px;
 }
 
 #content {
@@ -108,24 +148,15 @@ h1 {
     margin-bottom: 10px;
 }
 
-#statusBar ul {
-    list-style-type: none;
-}
-
 #statusBar .info {
     float: left;
     margin-left: 20px;
 }
 
-#statusBar .buttons {
-    float: right;
-    margin-right: 20px;
-}
-
 .buttons {
-    span {
+    button {
 	&:hover {
-	    background-color: @barColor - #222;
+	    background-color: @barColor - #111;
 	}
     }
 }

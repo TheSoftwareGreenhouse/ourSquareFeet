@@ -1,12 +1,16 @@
-!!!
+!!! 5
 html
   head
     link(href="/stylesheets/main.less", rel="stylesheet/less", type="text/css")
-    script(src="/javascript/less-1.0.21.min.js")
     script(async="true", src="http://www.google-analytics.com/ga.js")
-    title Hello World
+    title Our Square Feet
     :javascript
       | var _gaq = _gaq || [];
       | _gaq.push(['_setAccount', 'UA-20756458-1']);
       | _gaq.push(['_trackPageview']);
   body!= body
+  script(src="/javascript/less-1.0.21.min.js")
+  script(src="/javascript/jquery-1.5.min.js")  
+  script(src="/javascript/raphael-min.js")
+  script(src="/javascript/layoutengine.js")
+  script(src="/javascript/oursquarefeet.js")
