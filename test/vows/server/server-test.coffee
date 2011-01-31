@@ -30,6 +30,9 @@ vows.describe('the Our Square Feet server').addBatch({
       assert.include res, '<script src="/javascript/less-1.0.21.min.js">'
     'The response contains a link to the main stylesheet': (err, res) ->
       assert.include res, 'href="/stylesheets/main.less"'
+    'The response is setup for google analytics': (err, res) ->
+      assert.include res, 'src="http://www.google-analytics.com/ga.js"'
+      assert.include res, 'UA-20756458-1'
   }
   'when serving less-js': {
     topic: () -> getResponse('/javascript/less-1.0.21.min.js', this.callback)
