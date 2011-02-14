@@ -18,11 +18,29 @@
 /* CSS3 Effects */
 
 .boxShadow(@offsetTop: 3px, @offsetLeft: 3px, @depth: 5px, @color: @shadowColor) {
-    -webkit-box-shadow: @offsetTop @offsetLeft @depth @color;
+  -moz-box-shadow: @offsetTop @offsetLeft @depth @color;
+  -webkit-box-shadow: @offsetTop @offsetLeft @depth @color;
+  box-shadow: @offsetTop @offsetLeft @depth @color;
+  /* For IE 8 */
+  -ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='@color')";
+  filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='@color')";
 }
 
 .borderRadius(@radius:10px) {
-    -webkit-border-radius: @radius;    
+  -moz-border-radius: @radius;
+  -webkit-border-radius: @radius;    
+  border-radius: @radius
+}
+
+/* Resuable Styles */
+
+.box() {
+  position: fixed;
+  border: @border;
+  background-color: @barColor;
+  opacity: 0.95;
+  .boxShadow();
+  .borderRadius();
 }
 
 /* Basic styles */
@@ -31,22 +49,10 @@ div {
     font-family: helvetica, arial, freesans, clean, sans-serif    
 }
 
-.bar em {
-    font-family: 'CompleteInHim';
-    font-size: 1.2em;
-    font-weight: bold;
-    margin-right: 12px;
-}
-
 .bar {
-    position: fixed;
+    .box();
     width: 95%;
     margin-left: 20px;
-    border: @border;
-    background-color: @barColor;
-    opacity: 0.8;
-    .boxShadow();
-    .borderRadius();
 }
 
 #canvas {
@@ -57,28 +63,40 @@ div {
 }
 
 .message {
-    position: fixed;
-    width: 60%;
-    margin-left:20%;
-    margin-right:20%;
-    margin-top: 25%;
-    padding-top: 10px;
-    padding-bottom: 20px;
-    z-index:1;
-    top: 0;
-    border: @border;
-    background-color: @barColor;
-    opacity: 0.9;
-    .boxShadow();
-    .borderRadius();
-}
-
-.message .content {
-  margin: 20px;
-  h1 {
-    font-family: 'CompleteInHim';
-    font-size: 3em;
-    margin: 0.3em 0em;
+  .box();
+  width: 50%;
+  margin-left:120%;
+  margin-right:25%;
+  margin-top: 150px;
+  padding-top: 10px;
+  padding-bottom: 20px;
+  z-index:1;
+  top: 0;
+  .title {
+    overflow:hidden;
+  }
+  .content {
+    margin: 0px 25px;
+    h1 {
+      font-family: 'CompleteInHim';
+      font-size: 3.5em;
+      margin-bottom: 0.1em;
+      margin-top: 0.2em;
+      float: left;
+    }
+    .main {
+      font-size: 1.2em;
+      line-height: 1.2em;
+      p:first-child {
+        margin-top: 0em;
+      }
+      em {
+        font-family: 'CompleteInHim';
+        font-size: 1.4em;
+        padding-left: 2px;
+        padding-right: 2px;
+      }
+    }
   }
 }
 
@@ -86,13 +104,14 @@ div {
     top: 0;
     margin-top: 10px;
     .title {
-        font-family: 'CompleteInHim';
         margin-left: 20px;
         margin-top: 0.25em;
         margin-bottom: 0.1em;
-        float: left;
-        font-size: 1.75em;
+        margin-right: 20px;
         h1 {
+            float: left;
+            font-family: 'CompleteInHim';
+            font-size: 4em;
             margin-top: 0px;
             margin-bottom: 0px;
             a {
@@ -106,27 +125,36 @@ div {
                 }
             }
         }
+	h3 {
+          margin-top:25px;
+          float:right;
+	}
     }
 }
+
+.buttons {
+  float: right;
+  button {
+    &:hover {
+      background-color: @barColor - #111;
+    }
+  }
+}
+
 
 .bar .buttons {
     margin-top: 1em;
     margin-right: 20px;
-    float: right;
     font-size: 0.75em;
     min-height: 100%;
-}
-
-#statusBar.bar .buttons {
-    margin-top: 0.45em; 
 }
 
 button {
     padding-left: 15px;
     padding-right: 15px;
     margin-left: 2px;
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
+    padding-top: 0.4em;
+    padding-bottom: 0.4em;
     background-color: @barColor + #111;
     border: @border;
     font-size: 1.75em;
@@ -142,22 +170,3 @@ button {
 #content {
     width: 100%;
 }
-
-#statusBar {
-    bottom: 0;
-    margin-bottom: 10px;
-}
-
-#statusBar .info {
-    float: left;
-    margin-left: 20px;
-}
-
-.buttons {
-    button {
-	&:hover {
-	    background-color: @barColor - #111;
-	}
-    }
-}
-    

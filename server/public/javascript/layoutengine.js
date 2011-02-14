@@ -2,7 +2,7 @@
   var LayoutEngine, root;
   root = typeof exports != "undefined" && exports !== null ? exports : this;
   LayoutEngine = function(config) {
-    var _bottom, _left, _noOfColumns, _noOfRows, _right, _squareFootGap, _top;
+    var _bottom, _columnOffset, _columnWidth, _height, _left, _noOfColumns, _noOfRows, _plantHeight, _plantWidth, _right, _rowHeight, _rowOffset, _squareFootGap, _top, _width;
     _top = config.top;
     _bottom = config.bottom;
     _left = config.left;
@@ -10,6 +10,14 @@
     _noOfColumns = config.noOfColumns;
     _noOfRows = config.noOfRows;
     _squareFootGap = config.squareFootGap;
+    _rowOffset = config.rowOffset;
+    _columnOffset = config.columnOffset;
+    _width = Math.abs(_right - _left);
+    _height = Math.abs(_bottom - _top);
+    _columnWidth = Math.floor(_width / _noOfColumns);
+    _rowHeight = Math.floor(_height / _noOfRows);
+    _plantWidth = _columnWidth - (2 * _squareFootGap);
+    _plantHeight = _rowHeight - (2 * _squareFootGap);
     return {
       top: _top,
       right: _right,
@@ -18,29 +26,23 @@
       noOfColumns: _noOfColumns,
       noOfRows: _noOfRows,
       squareFootGap: _squareFootGap,
-      width: function() {
-        return this.right - this.left;
+      width: _width,
+      height: _height,
+      columnWidth: _columnWidth,
+      rowHeight: _rowHeight,
+      plantWidth: _plantWidth,
+      plantHeight: _plantHeight,
+      getLeftForPlantInColumn: function(column) {
+        return this.getLeftForColumn(column) + _squareFootGap;
       },
-      height: function() {
-        return this.bottom - this.top;
+      getTopForPlantInRow: function(row) {
+        return this.getTopForRow(row) + _squareFootGap;
       },
-      columnWidth: function() {
-        return Math.floor(this.width() / this.noOfColumns);
+      getLeftForColumn: function(column) {
+        return (column + _columnOffset) * _columnWidth;
       },
-      rowHeight: function() {
-        return Math.floor(this.height() / this.noOfRows);
-      },
-      squareFootWidth: function() {
-        return this.columnWidth() - (2 * this.squareFootGap);
-      },
-      squareFootHeight: function() {
-        return this.rowHeight() - (2 * this.squareFootGap);
-      },
-      getSquareFootLeftForColumn: function(column) {
-        return (column * this.columnWidth()) + this.squareFootGap;
-      },
-      getSquareFootTopForRow: function(row) {
-        return (row * this.rowHeight()) + this.squareFootGap;
+      getTopForRow: function(row) {
+        return (row + _rowOffset) * _rowHeight;
       }
     };
   };

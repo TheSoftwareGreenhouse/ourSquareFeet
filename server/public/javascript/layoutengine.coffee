@@ -8,6 +8,14 @@ LayoutEngine = (config) ->
    _noOfColumns = config.noOfColumns
    _noOfRows = config.noOfRows
    _squareFootGap = config.squareFootGap
+   _rowOffset = config.rowOffset
+   _columnOffset = config.columnOffset
+   _width = Math.abs(_right - _left)
+   _height = Math.abs(_bottom - _top)
+   _columnWidth = Math.floor(_width/_noOfColumns)
+   _rowHeight = Math.floor(_height/_noOfRows)
+   _plantWidth = _columnWidth - (2* _squareFootGap)
+   _plantHeight = _rowHeight - (2* _squareFootGap)
    top: _top
    right: _right
    bottom: _bottom
@@ -15,22 +23,20 @@ LayoutEngine = (config) ->
    noOfColumns: _noOfColumns
    noOfRows: _noOfRows
    squareFootGap: _squareFootGap
-   width: () ->
-     this.right - this.left
-   height: () ->
-     this.bottom - this.top
-   columnWidth: () ->
-     Math.floor(this.width()/this.noOfColumns)
-   rowHeight: () ->
-     Math.floor(this.height()/this.noOfRows)
-   squareFootWidth: () ->
-     this.columnWidth() - (2* this.squareFootGap)
-   squareFootHeight: () ->
-     this.rowHeight() - (2* this.squareFootGap)
-   getSquareFootLeftForColumn: (column) ->
-     (column * this.columnWidth()) + this.squareFootGap
-   getSquareFootTopForRow: (row) ->
-     (row * this.rowHeight()) + this.squareFootGap
+   width: _width
+   height: _height
+   columnWidth: _columnWidth
+   rowHeight: _rowHeight
+   plantWidth: _plantWidth
+   plantHeight: _plantHeight
+   getLeftForPlantInColumn: (column) ->
+     this.getLeftForColumn(column) + _squareFootGap
+   getTopForPlantInRow: (row) ->
+     this.getTopForRow(row) + _squareFootGap
+   getLeftForColumn: (column) ->
+     (column + _columnOffset) * _columnWidth
+   getTopForRow: (row) ->
+     (row + _rowOffset) * _rowHeight
 
 root.LayoutEngine = LayoutEngine
 

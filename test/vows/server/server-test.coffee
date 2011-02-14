@@ -40,16 +40,9 @@ vows.describe('the Our Square Feet server').addBatch({
     'The response contains links to the application': (err, res) ->
       assert.include res, '<script src="/javascript/layoutengine.js">'
       assert.include res, '<script src="/javascript/oursquarefeet.js">'
-  }
-  'when querying the wannahelp page': {
-    topic: () -> getResponse('/wannahelp', this.callback)
-    'There is no error': (err, res) ->
-      assert.isNull err
-    'The client receives a response': (err, res) ->
-      assert.isString res
-    'The page links to out Lighthouse account': (err, res) ->
-      assert.include res, 'href="http://gmcallister.lighthouseapp.com/projects/61069-our-square-feet/overview"'
-      assert.include res, 'href="http://gmcallister.lighthouseapp.com/projects/61069-our-square-feet/tickets/new"'
+    'The page links to our Tender app account': (err, res) ->
+      assert.include res, 'href="http://our-square-feet.tenderapp.com/home"'
+      assert.include res, 'href="http://our-square-feet.tenderapp.com/discussion/new"'
   }
   'when serving less js': {
     topic: () -> getResponse('/javascript/less-1.0.21.min.js', this.callback)
