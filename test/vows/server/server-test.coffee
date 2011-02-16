@@ -26,6 +26,8 @@ vows.describe('the Our Square Feet server').addBatch({
       assert.include res, '<html>'
       assert.include res, '<h1><a href="/">Our Square Feet</a></h1>'
       assert.include res, '</html>'
+    'The response contains the html5 ie shim': (err, res) ->
+      assert.include res, '<script src="/javascript/html5.js">'
     'The response contains gets the less-js js file': (err, res) ->
       assert.include res, '<script src="/javascript/less-1.0.21.min.js">'
     'The response contains a link to the main stylesheet': (err, res) ->
