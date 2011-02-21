@@ -2,7 +2,8 @@
 
 @font-face {
     font-family: 'CompleteInHim';
-    src: url('/fonts/CompleteInHim.ttf');
+    src: url('/fonts/CompleteInHim.eot'); /* IE */
+    src: local("Complete In Him"), url('/fonts/CompleteInHim.ttf'); /* Non-IE */
 }
 
 /* Colors */
@@ -36,6 +37,7 @@
 
 .box() {
   position: fixed;
+  z-index:1;
   border: @border;
   background-color: @barColor;
   opacity: 0.95;
@@ -70,7 +72,6 @@ div {
   margin-top: 150px;
   padding-top: 10px;
   padding-bottom: 20px;
-  z-index:1;
   top: 0;
   .title {
     overflow:hidden;
