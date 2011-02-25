@@ -21,19 +21,22 @@ Raphael.fn.grid = () ->
     drawGridLine "M"+ columnLinePosition + " 0L" + columnLinePosition + " " + le.height
   drawRowLine = (rowLinePosition) ->
     drawGridLine "M0 " + rowLinePosition + "L" + le.width + " " + rowLinePosition
-  drawColumnLine colPos for colPos in [le.columnWidth..le.width] by le.columnWidth
-  drawRowLine rowPos for rowPos in [le.rowHeight..le.height] by le.rowHeight
-
+  drawColumnLine colPos for colPos in le.columnPositions
+  drawRowLine rowPos for rowPos in le.rowPositions
   square = canvas.rect(le.left,le.right,le.top,le.bottom)
   square.attr("stroke-width", "5")
 
-Raphael.fn.plant = (start, end, name, color) ->
+Raphael.fn.plant = (plant) ->
   canvas = this
-  left = le.getLeftForPlantInColumn(start.column)
-  footWidth = end.column - start.column + 1
+  start = plant.start
+  end = plant.end
+  name = plant.name
+  color = plant.color
+  left = le.getLeftForPlantInColumn(start.c)
+  footWidth = end.c - start.c + 1
   width = ((footWidth-1) * le.columnWidth) + le.plantWidth
-  top = le.getTopForPlantInRow(start.row)
-  footHeight = end.row - start.row + 1
+  top = le.getTopForPlantInRow(start.r)
+  footHeight = end.r - start.r + 1
   height = ((footHeight-1) * le.rowHeight) + le.plantHeight
   square = canvas.rect(left,top, width, height, 6)
   square.attr("fill", color)
@@ -43,13 +46,15 @@ Raphael.fn.plant = (start, end, name, color) ->
   text = canvas.text(centreOfColumn, centreOfRow, name)
   text.attr("font-size", "20")
 
-Raphael.fn.bed = (start, end) ->
+Raphael.fn.bed = (bed) ->
   canvas = this
-  left = le.getLeftForColumn(start.column)
-  footWidth = end.column - start.column + 1
+  start = bed.start
+  end = bed.end
+  left = le.getLeftForColumn(start.c)
+  footWidth = end.c - start.c + 1
   width = footWidth * le.columnWidth
-  top = le.getTopForRow(start.row)
-  footHeight = end.row - start.row + 1
+  top = le.getTopForRow(start.r)
+  footHeight = end.r - start.r + 1
   height = footHeight * le.rowHeight
   square = canvas.rect(left, top, width, height)
   square.attr("fill", "#999")
@@ -59,39 +64,41 @@ Raphael.fn.bed = (start, end) ->
 paper = Raphael("canvas")
 paper.grid()
 
-paper.bed({column:-3,row:-1},{column:0,row:2})
-paper.bed({column:2,row:-1},{column:4,row:1})
+persistance = {}
+persistance.beds = [
+  {start: {c:-3,r:-1}, end: {c: 0,r: 2}}
+  {start: {c: 2,r:-1}, end: {c: 4,r: 1}}
+]
 
-paper.plant({column:0,row:-1}, {column:0,row:-1}, "Brocolli", "#008000")
-paper.plant({column:-1,row:-1}, {column:-1,row:-1}, "Spring\nOnion", "#00ff7f")
-paper.plant({column:-2,row:-1}, {column:-2,row:-1}, "French\nBean", "#008000")
-paper.plant({column:-3,row:-1}, {column:-3,row:-1}, "French\nBean", "#008000")
+persistance.plants = [
+  {start: {c: 0,r:-1}, end: {c: 0,r:-1}, name:"Brocolli", color:"#008000"}
+  {start: {c:-1,r:-1}, end: {c:-1,r:-1}, name:"Spring\nOnion", color:"#00ff7f"}
+  {start: {c:-2,r:-1}, end: {c:-2,r:-1}, name:"French\nBean",  color:"#008000"}
+  {start: {c:-3,r:-1}, end: {c:-3,r:-1}, name:"French\nBean", color:"#008000"}
+  {start: {c: 0,r: 0}, end: {c: 0,r: 0}, name:"Spring\nOnion", color:"#00ff7f"}
+  {start: {c:-1,r: 0}, end: {c:-1,r: 0}, name:"Chives", color:"#00ff7f"}
+  {start: {c:-2,r: 0}, end: {c:-2,r: 0}, name:"French\nBean", color:"#008000"}
+  {start: {c:-3,r: 0}, end: {c:-3,r: 0}, name:"French\nBean", color:"#008000"}
+  {start: {c: 0,r: 1}, end: {c: 0,r: 1}, name:"Lettuce", color:"#00ff7f"}
+  {start: {c:-1,r: 1}, end: {c:-1,r: 1}, name:"Lettuce", color:"#00ff7f"}
+  {start: {c:-2,r: 1}, end: {c:-2,r: 1}, name:"Lettuce", color:"#00ff7f"}
+  {start: {c:-3,r: 1}, end: {c:-3,r: 1}, name:"Marigold", color:"#ffff00"}
+  {start: {c: 0,r: 2}, end: {c: 0,r: 2}, name:"Lettuce", color:"#00ff7f"}
+  {start: {c:-1,r: 2}, end: {c:-1,r: 2}, name:"Carrot", color:"#ffa500"}
+  {start: {c:-2,r: 2}, end: {c:-2,r: 2}, name:"Carrot", color:"#ffa500"}
+  {start: {c:-3,r: 2}, end: {c:-3,r: 2}, name:"Carrot", color:"#ffa500"}
+  {start: {c: 4,r: 1}, end: {c: 4,r: 1}, name:"Carrot", color:"#ffa500"}
+  {start: {c: 3,r: 1}, end: {c: 3,r: 1}, name:"Carrot", color:"#ffa500"}
+  {start: {c: 2,r: 1}, end: {c: 2,r: 1}, name:"Carrot", color:"#ffa500"}
+  {start: {c: 3,r: 0}, end: {c: 4,r: 0}, name:"Zuchini", color:"#008045"}
+  {start: {c: 2,r: 0}, end: {c: 2,r: 0}, name:"Marigold", color:"#ffff00"}
+  {start: {c: 4,r:-1}, end: {c: 4,r:-1}, name:"Brocolli", color:"#008000"}
+  {start: {c: 3,r:-1}, end: {c: 3,r:-1}, name:"Spring\nOnion", color:"#00ff7f"}
+  {start: {c: 2,r:-1}, end: {c: 2,r:-1}, name:"Marigold", color:"#ffff00"}
+]
 
-paper.plant({column:0,row:0}, {column:0,row:0}, "Spring\nOnion", "#00ff7f")
-paper.plant({column:-1,row:0}, {column:-1,row:0}, "Chives", "#00ff7f")
-paper.plant({column:-2,row:0}, {column:-2,row:0}, "French\nBean", "#008000")
-paper.plant({column:-3,row:0}, {column:-3,row:0}, "French\nBean", "#008000")
-
-paper.plant({column:0,row:1}, {column:0,row:1}, "Lettuce", "#00ff7f")
-paper.plant({column:-1,row:1}, {column:-1,row:1}, "Lettuce", "#00ff7f")
-paper.plant({column:-2,row:1}, {column:-2,row:1}, "Lettuce", "#00ff7f")
-paper.plant({column:-3,row:1}, {column:-3,row:1}, "Marigold", "#ffff00")
-
-paper.plant({column:0,row:2}, {column:0,row:2}, "Lettuce", "#00ff7f")
-paper.plant({column:-1,row:2}, {column:-1,row:2}, "Carrot", "#ffa500")
-paper.plant({column:-2,row:2}, {column:-2,row:2}, "Carrot", "#ffa500")
-paper.plant({column:-3,row:2}, {column:-3,row:2}, "Carrot", "#ffa500")
-
-paper.plant({column:4,row:1}, {column:4,row:1}, "Carrot", "#ffa500")
-paper.plant({column:3,row:1}, {column:3,row:1}, "Carrot", "#ffa500")
-paper.plant({column:2,row:1}, {column:2,row:1}, "Carrot", "#ffa500")
-
-paper.plant({column:3,row:0}, {column:4,row:0}, "Zuchini", "#008045")
-paper.plant({column:2,row:0}, {column:2,row:0}, "Marigold", "#ffff00")
-
-paper.plant({column:4,row:-1}, {column:4,row:-1}, "Brocolli", "#008000")
-paper.plant({column:3,row:-1}, {column:3,row:-1}, "Spring\nOnion", "#00ff7f")
-paper.plant({column:2,row:-1}, {column:2,row:-1}, "Marigold", "#ffff00")
+paper.bed bed for bed in persistance.beds
+paper.plant plant for plant in persistance.plants
 
 height = $(window).height()
 width = $(window).width()

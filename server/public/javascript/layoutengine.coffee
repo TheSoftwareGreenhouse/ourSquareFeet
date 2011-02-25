@@ -16,6 +16,10 @@ LayoutEngine = (config) ->
    _rowHeight = Math.floor(_height/_noOfRows)
    _plantWidth = _columnWidth - (2* _squareFootGap)
    _plantHeight = _rowHeight - (2* _squareFootGap)
+   _columnLefts = for columnPosition in [0..(_width - _columnWidth)] by _columnWidth
+     columnPosition
+   _rowTops = for rowPosition in [0..(_height - _rowHeight)] by _rowHeight
+     rowPosition
    top: _top
    right: _right
    bottom: _bottom
@@ -29,14 +33,16 @@ LayoutEngine = (config) ->
    rowHeight: _rowHeight
    plantWidth: _plantWidth
    plantHeight: _plantHeight
+   columnPositions: _columnLefts[1.._columnLefts.length]
+   rowPositions: _rowTops[1.._rowTops.length]
    getLeftForPlantInColumn: (column) ->
      this.getLeftForColumn(column) + _squareFootGap
    getTopForPlantInRow: (row) ->
      this.getTopForRow(row) + _squareFootGap
    getLeftForColumn: (column) ->
-     (column + _columnOffset) * _columnWidth
+     _columnLefts[column + _columnOffset]
    getTopForRow: (row) ->
-     (row + _rowOffset) * _rowHeight
+     _rowTops[row + _rowOffset]
 
 root.LayoutEngine = LayoutEngine
 

@@ -45,13 +45,41 @@ vows.describe('the application Layout Engine').addBatch({
       assert.equal topic.plantWidth, 16
     'The height of a plant is 16': (topic) ->
       assert.equal topic.plantHeight, 16
-    'The left of column 0 is 40': (topic) ->
+    'The left of columns are correct': (topic) ->
+      assert.equal topic.getLeftForColumn(-2), 0
+      assert.equal topic.getLeftForColumn(-1), 20
       assert.equal topic.getLeftForColumn(0), 40
-    'The top of row 0 is 40': (topic) ->
+      assert.equal topic.getLeftForColumn(1), 60
+      assert.equal topic.getLeftForColumn(2), 80
+    'The top of rows are correct': (topic) ->
+      assert.equal topic.getTopForRow(-2), 0
+      assert.equal topic.getTopForRow(-1), 20
       assert.equal topic.getTopForRow(0), 40
-    'The left of the square foot in column 2 is 82': (topic) ->
+      assert.equal topic.getTopForRow(1), 60
+      assert.equal topic.getTopForRow(2), 80
+    'The left of the plants are correct': (topic) ->
+      assert.equal topic.getLeftForPlantInColumn(-2), 2
+      assert.equal topic.getLeftForPlantInColumn(-1), 22
+      assert.equal topic.getLeftForPlantInColumn(0), 42
+      assert.equal topic.getLeftForPlantInColumn(1), 62
       assert.equal topic.getLeftForPlantInColumn(2), 82
-    'The top of the square foot in row -1 is 22': (topic) ->
+    'The top of the plants are correct': (topic) ->
+      assert.equal topic.getTopForPlantInRow(-2), 2
       assert.equal topic.getTopForPlantInRow(-1), 22
+      assert.equal topic.getTopForPlantInRow(0), 42
+      assert.equal topic.getTopForPlantInRow(1), 62
+      assert.equal topic.getTopForPlantInRow(2), 82
+    'The column positions are correct': (topic) ->
+      assert.equal topic.columnPositions.length, 4
+      assert.equal topic.columnPositions[0], 20
+      assert.equal topic.columnPositions[1], 40
+      assert.equal topic.columnPositions[2], 60
+      assert.equal topic.columnPositions[3], 80
+    'The row positions are correct': (topic) ->
+      assert.equal topic.rowPositions.length, 4
+      assert.equal topic.rowPositions[0], 20
+      assert.equal topic.rowPositions[1], 40
+      assert.equal topic.rowPositions[2], 60
+      assert.equal topic.rowPositions[3], 80
   }
 }).export module
