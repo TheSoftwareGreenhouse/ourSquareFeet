@@ -81,5 +81,17 @@ vows.describe('the application Layout Engine').addBatch({
       assert.equal topic.rowPositions[1], 40
       assert.equal topic.rowPositions[2], 60
       assert.equal topic.rowPositions[3], 80
+    'Pixels to column is correct': (topic) ->
+      assert.equal topic.pixelsToColumn(12), -2
+      assert.equal topic.pixelsToColumn(20), -1
+      assert.equal topic.pixelsToColumn(59), 0
+      assert.equal topic.pixelsToColumn(60), 1
+      assert.equal topic.pixelsToColumn(81), 2
+    'Pixels to row is correct': (topic) ->
+      assert.equal topic.pixelsToRow(12), -2
+      assert.equal topic.pixelsToRow(20), -1
+      assert.equal topic.pixelsToRow(59), 0
+      assert.equal topic.pixelsToRow(60), 1
+      assert.equal topic.pixelsToRow(81), 2
   }
 }).export module

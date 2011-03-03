@@ -61,6 +61,12 @@
       },
       getTopForRow: function(row) {
         return _rowTops[row + _rowOffset];
+      },
+      pixelsToColumn: function(x) {
+        return Math.floor(x / _columnWidth) - _columnOffset;
+      },
+      pixelsToRow: function(y) {
+        return Math.floor(y / _rowHeight) - _rowOffset;
       }
     };
   };

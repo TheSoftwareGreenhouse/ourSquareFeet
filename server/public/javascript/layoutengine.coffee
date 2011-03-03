@@ -43,6 +43,10 @@ LayoutEngine = (config) ->
      _columnLefts[column + _columnOffset]
    getTopForRow: (row) ->
      _rowTops[row + _rowOffset]
+   pixelsToColumn: (x) ->
+     Math.floor(x / _columnWidth) - _columnOffset
+   pixelsToRow: (y) ->
+     Math.floor(y / _rowHeight) - _rowOffset
 
 root.LayoutEngine = LayoutEngine
 
