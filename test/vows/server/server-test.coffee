@@ -24,7 +24,7 @@ vows.describe('the Our Square Feet server').addBatch({
       assert.isString res
     'The response is correct': (err, res) ->
       assert.include res, '<html>'
-      assert.include res, '<h1><a href="/">Our Square Feet</a></h1>'
+      assert.include res, '<h1><a href="/">My Garden Plan</a></h1>'
       assert.include res, '</html>'
     'The response contains the html5 ie shim': (err, res) ->
       assert.include res, '<script src="/javascript/html5.js">'
@@ -40,6 +40,7 @@ vows.describe('the Our Square Feet server').addBatch({
     'The response contains a link to jquery js file': (err, res) ->
       assert.include res, '<script src="/javascript/jquery-1.5.min.js">'
     'The response contains links to the application': (err, res) ->
+      assert.include res, '<script src="/javascript/observatory.js">'
       assert.include res, '<script src="/javascript/layoutengine.js">'
       assert.include res, '<script src="/javascript/oursquarefeet.js">'
     'The page links to our Tender app account': (err, res) ->

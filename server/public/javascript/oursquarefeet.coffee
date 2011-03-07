@@ -13,12 +13,78 @@ config = {
 le = LayoutEngine config
 
 sf = new SquareFeet()
+plants = new Plants()
+
+Raphael.fn.straightLine = (left, top, width, height) ->
+  canvas = this
+  canvas.path("M#{left} #{top}L#{left+width} #{top+height}")
+
+Raphael.fn.closeButton = (left, top, width, height) ->
+  canvas = this
+  # calculate layout
+  factor = 0.25
+  cross = {
+    left:  left + Math.floor(factor * width)
+    top:   top + Math.floor(factor * height)
+    width: Math.floor((1-(1.5*factor)) * width)
+    height:Math.floor((1-(1.5*factor)) * height)
+  }
+  # build Raphael objects
+  rect = canvas.rect(left,top,width, height, 3)
+  slashUp = canvas.straightLine(cross.left, cross.top + cross.height, cross.width, -cross.height)
+  slashDown = canvas.straightLine(cross.left, cross.top, cross.width, cross.height)
+  # format objects
+  rect.attr {"fill": "#f00", "fill-opacity": ".2"}
+  formatPath = (path) ->
+    attributes = {
+      "stroke-width": "2"
+      "stroke-linecap": "round"
+      "stroke": "#222"
+    }
+    path.attr attributes
+  formatPath path for path in [slashUp,slashDown,rect]
+  # create a return object
+  button =   {
+    graphics: {
+      rect: rect
+      slashUp: slashUp
+      slashDown: slashDown
+    }
+    remove: () ->
+      slashUp.remove()
+      slashDown.remove()
+      rect.remove()
+    hide: () ->
+      slashUp.hide()
+      slashDown.hide()
+      rect.hide()
+    show: () ->
+      slashUp.show()
+      slashDown.show()
+      rect.attr {opacity: 0}
+      rect.show()
+      rect.animate {opacity: 1}, 400
+  }
+  # publish
+  observatory = new Observatory(button)
+  click = (event) -> observatory.publish "click", "closing"
+  graphic.click click for key, graphic of button.graphics
+  # respond to
+  mouseOn = (event) ->
+    rect.attr("fill-opacity", ".8")
+    observatory.publish "mouseOn"
+  mouseOff= (event) ->
+    rect.attr("fill-opacity", ".2")
+    observatory.publish "mouseOff"
+  graphic.hover mouseOn, mouseOff for key, graphic of button.graphics
+  #return
+  button
 
 Raphael.fn.squareFoot = (squareFoot) ->
   canvas = this
-  left = le.getLeftForColumn(squareFoot.c)
+  left = le.getLeftForColumn(squareFoot.coord.c)
   width = le.columnWidth
-  top = le.getTopForRow(squareFoot.r)
+  top = le.getTopForRow(squareFoot.coord.r)
   height = le.rowHeight
   drawBorder = (from, to) ->
     path = canvas.path "M"+from.x+" "+from.y+"L"+to.x+" "+to.y
@@ -45,13 +111,37 @@ Raphael.fn.squareFoot = (squareFoot) ->
     right:  drawRightBorder()
   }
   square.borders = borders
+  closeButtonDim = {
+    left:  left + Math.floor(0.8 * width)
+    top:   top + Math.floor(0.05 * height)
+    width: Math.floor(0.15 * width)
+    height:Math.floor(0.15 * height)
+  }
+  square.closeButton = canvas.closeButton(closeButtonDim.left, closeButtonDim.top, closeButtonDim.width, closeButtonDim.height)
+  observatory = new Observatory(square)
+  square.closeButton.subscribe "click", (text) ->
+    observatory.publish "remove", squareFoot
   square.updateBorders = () ->
-    if sf.exists({c:squareFoot.c, r:squareFoot.r-1}) then borders.top.hide() else borders.top.show()
-    if sf.exists({c:squareFoot.c, r:squareFoot.r+1}) then borders.bottom.hide() else borders.bottom.show()
-    if sf.exists({c:squareFoot.c-1, r:squareFoot.r}) then borders.left.hide() else borders.left.show()
-    if sf.exists({c:squareFoot.c+1, r:squareFoot.r}) then borders.right.hide() else borders.right.show()
+    if sf.exists(squareFoot.neighbours.top) then borders.top.hide() else borders.top.show()
+    if sf.exists(squareFoot.neighbours.bottom) then borders.bottom.hide() else borders.bottom.show()
+    if sf.exists(squareFoot.neighbours.left) then borders.left.hide() else borders.left.show()
+    if sf.exists(squareFoot.neighbours.right) then borders.right.hide() else borders.right.show()
   square.updateBorders()
-  square.coord = {c:squareFoot.c, r:squareFoot.r}
+  square.coord = squareFoot.coord
+  square.destroy = () ->
+    square.closeButton.remove()
+    value.remove() for key, value of borders
+    square.remove()
+  mouseStillInSquare = (event) ->
+    if event?
+      inHorizontally = (left < event.pageX < (left + width))
+      inVertically = (top < event.pageY < (top + height))
+      inHorizontally and inVertically
+  mouseOn  = () -> if not plants.existsAtCoord(squareFoot.coord) then square.closeButton.show()
+  mouseOff = (event) -> if not mouseStillInSquare(event) then square.closeButton.hide()
+  square.hover mouseOn, mouseOff
+  square.closeButton.hide()
+  mouseOn
   square
 
 Raphael.fn.grid = () ->
@@ -139,27 +229,41 @@ $(grid.node).bind "click", (event) ->
   r = le.pixelsToRow(event.pageY)
   squareFoot = sf.add {c:c, r:r}
 
-$(document).bind "SquareFeet/new", (event, squareFoot) ->
-  ui.squareFeet.push paper.squareFoot(squareFoot)
-  updateBordersOf squareFoot
+window.TheObservatory = new Observatory()
+
+plants.subscribe "new", (plant) ->
+  paper.plant plant
+
+sf.subscribe "new", (squareFoot) ->
+  uiSquareFoot = paper.squareFoot(squareFoot)
+  uiSquareFoot.subscribe "remove", (sfToRemove) ->
+    sf.remove sfToRemove.coord
+  ui.squareFeet.push uiSquareFoot
+  updateBordersOf squareFoot.coord
+
+sf.subscribe "removed", (coord) ->
+  uiSquareFoot = (foot for foot in ui.squareFeet when (foot.coord.matches(coord)))[0]
+  ui.squareFeet = (foot for foot in ui.squareFeet when not (foot.coord.matches(coord)))
+  uiSquareFoot.destroy()
+  updateBordersOf coord
 
 updateBordersOf = (coord) ->
-  neighbours = [
-    {c:coord.c  , r:coord.r-1}
-    {c:coord.c  , r:coord.r+1}
-    {c:coord.c-1, r:coord.r  }
-    {c:coord.c+1, r:coord.r  }
-  ]
   getUiSquareFoot = (coord) ->
-    matches = (foot for foot in ui.squareFeet when (foot.coord.c == coord.c and foot.coord.r == coord.r))
+    matches = (foot for foot in ui.squareFeet when (coord.matches(foot.coord)))
     if matches.length is 1 then matches[0] else null
-  for neighbour in neighbours
+  neighbours = {
+    top: coord.above()
+    bottom: coord.below()
+    left: coord.toTheLeft()
+    right: coord.toTheRight()
+  }
+  for position, neighbour of neighbours
     squareFootUi = getUiSquareFoot neighbour
     squareFootUi.updateBorders() if squareFootUi isnt null
 
 sf.add squareFoot for squareFoot in persistance.squareFeet
 
-paper.plant plant for plant in persistance.plants
+plants.add plant for plant in persistance.plants
 
 height = $(window).height()
 width = $(window).width()
@@ -172,3 +276,4 @@ $().ready () ->
   $("button.close").bind 'click', (event) ->
     $("aside.message").animate {marginLeft: '120%'}, 1000
   $("#oops").animate {marginLeft: '25%'}, 1000
+

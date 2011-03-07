@@ -1,15 +1,23 @@
+Observatory = if exports? then require('./observatory').Observatory else this.Observatory
+SquareFoot = if exports? then require('./squarefoot').SquareFoot else this.SquareFoot
+
 root = exports ? this
 
 SquareFeet = () ->
   _feet =[]
-  this.add = (coordinate) ->
-    foot = {c:coordinate.c, r:coordinate.r}
+  _observatory = new Observatory(this)
+  this.add = (coord) ->
+    foot = new SquareFoot(coord)
     _feet.push foot
-    $(document).trigger 'SquareFeet/new', foot
+    _observatory.publish 'new', foot
     foot
   this.exists = (coordinate) ->
-    feet = (foot for foot in _feet when (foot.r == coordinate.r and foot.c == coordinate.c))
+    feet = (foot for foot in _feet when (foot.coord.matches(coordinate)))
     feet.length > 0
+  this.remove = (coordinate) ->
+    _feet = (foot for foot in _feet when not (foot.coord.matches(coordinate)))
+    _observatory.publish 'removed', coordinate
+    true
   this
 
 
