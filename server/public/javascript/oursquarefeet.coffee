@@ -71,10 +71,10 @@ Raphael.fn.closeButton = (left, top, width, height) ->
   graphic.click click for key, graphic of button.graphics
   # respond to
   mouseOn = (event) ->
-    rect.attr("fill-opacity", ".8")
+    rect.animate {"fill-opacity": ".8"}, 200
     observatory.publish "mouseOn"
   mouseOff= (event) ->
-    rect.attr("fill-opacity", ".2")
+    rect.animate {"fill-opacity": ".2"}, 200
     observatory.publish "mouseOff"
   graphic.hover mouseOn, mouseOff for key, graphic of button.graphics
   #return
@@ -134,6 +134,7 @@ Raphael.fn.squareFoot = (squareFoot) ->
     square.remove()
   mouseStillInSquare = (event) ->
     if event?
+      event = $.event.fix(event)
       inHorizontally = (left < event.pageX < (left + width))
       inVertically = (top < event.pageY < (top + height))
       inHorizontally and inVertically

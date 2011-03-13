@@ -88,11 +88,15 @@
       graphic.click(click);
     }
     mouseOn = function(event) {
-      rect.attr("fill-opacity", ".8");
+      rect.animate({
+        "fill-opacity": ".8"
+      }, 200);
       return observatory.publish("mouseOn");
     };
     mouseOff = function(event) {
-      rect.attr("fill-opacity", ".2");
+      rect.animate({
+        "fill-opacity": ".2"
+      }, 200);
       return observatory.publish("mouseOff");
     };
     _ref3 = button.graphics;
@@ -211,6 +215,7 @@
     mouseStillInSquare = function(event) {
       var inHorizontally, inVertically, _ref, _ref2;
       if (event != null) {
+        event = $.event.fix(event);
         inHorizontally = (left < (_ref = event.pageX) && _ref < (left + width));
         inVertically = (top < (_ref2 = event.pageY) && _ref2 < (top + height));
         return inHorizontally && inVertically;
