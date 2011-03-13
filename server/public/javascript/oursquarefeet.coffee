@@ -65,11 +65,11 @@ Raphael.fn.closeButton = (left, top, width, height) ->
       rect.show()
       rect.animate {opacity: 1}, 400
   }
-  # publish
   observatory = new Observatory(button)
+  # publish
   click = (event) -> observatory.publish "click", "closing"
   graphic.click click for key, graphic of button.graphics
-  # respond to
+  # subscriptions
   mouseOn = (event) ->
     rect.animate {"fill-opacity": ".8"}, 200
     observatory.publish "mouseOn"
@@ -77,21 +77,25 @@ Raphael.fn.closeButton = (left, top, width, height) ->
     rect.animate {"fill-opacity": ".2"}, 200
     observatory.publish "mouseOff"
   graphic.hover mouseOn, mouseOff for key, graphic of button.graphics
-  #return
+  # return
   button
 
 Raphael.fn.squareFoot = (squareFoot) ->
   canvas = this
+  # calculate Layout
   left = le.getLeftForColumn(squareFoot.coord.c)
   width = le.columnWidth
   top = le.getTopForRow(squareFoot.coord.r)
   height = le.rowHeight
+  closeButtonDim = {
+    left:  left + Math.floor(0.8 * width)
+    top:   top + Math.floor(0.05 * height)
+    width: Math.floor(0.15 * width)
+    height:Math.floor(0.15 * height)
+  }
+  # build Raphael objects
   drawBorder = (from, to) ->
     path = canvas.path "M"+from.x+" "+from.y+"L"+to.x+" "+to.y
-    path.attr("stroke-width", "5")
-    path.attr("stroke-linecap", "round")
-    path.hide()
-    path
   drawTopBorder = () ->
     drawBorder {x:left,y:top}, {x:left+width, y:top}
   drawBottomBorder = () ->
@@ -101,49 +105,65 @@ Raphael.fn.squareFoot = (squareFoot) ->
   drawRightBorder = () ->
     drawBorder {x:left+width,y:top}, {x:left+width, y:top+height}
   square = canvas.rect(left, top, width, height)
-  square.attr("fill", "#999")
-  square.attr("fill-opacity", "0.5")
-  square.attr("stroke-opacity", "0")
   borders = {
     top:    drawTopBorder()
     bottom: drawBottomBorder()
     left:   drawLeftBorder()
     right:  drawRightBorder()
   }
-  square.borders = borders
-  closeButtonDim = {
-    left:  left + Math.floor(0.8 * width)
-    top:   top + Math.floor(0.05 * height)
-    width: Math.floor(0.15 * width)
-    height:Math.floor(0.15 * height)
+  closeButton = canvas.closeButton(closeButtonDim.left, closeButtonDim.top, closeButtonDim.width, closeButtonDim.height)
+  # format Raphael objects
+  square.attr("fill", "#999")
+  square.attr("fill-opacity", "0.5")
+  square.attr("stroke-opacity", "0")
+  for key, border of borders
+    border.attr("stroke-width", "5")
+    border.attr("stroke-linecap", "round")
+    border.hide()
+  # create a return object
+  uiSquareFoot = {
+    graphics: {
+      square: square
+      borders: borders
+    }
+    children: {
+      closeButton: closeButton
+    }
+    remove: () ->
+      closeButton.remove()
+      border.remove() for key, border of borders
+      square.remove()
+    coord: squareFoot.coord
+    updateBorders:() ->
+      if sf.exists(squareFoot.neighbours.top) then borders.top.hide() else borders.top.show()
+      if sf.exists(squareFoot.neighbours.bottom) then borders.bottom.hide() else borders.bottom.show()
+      if sf.exists(squareFoot.neighbours.left) then borders.left.hide() else borders.left.show()
+      if sf.exists(squareFoot.neighbours.right) then borders.right.hide() else borders.right.show()
   }
-  square.closeButton = canvas.closeButton(closeButtonDim.left, closeButtonDim.top, closeButtonDim.width, closeButtonDim.height)
-  observatory = new Observatory(square)
-  square.closeButton.subscribe "click", (text) ->
+  observatory = new Observatory(uiSquareFoot)
+  # Publish
+  square.click () ->
+    if not plants.existsAtCoord(squareFoot.coord) then (
+      closeButton.hide()
+      observatory.publish "plant/new", squareFoot
+    )
+  # Subscriptions
+  closeButton.subscribe "click", (text) ->
     observatory.publish "remove", squareFoot
-  square.updateBorders = () ->
-    if sf.exists(squareFoot.neighbours.top) then borders.top.hide() else borders.top.show()
-    if sf.exists(squareFoot.neighbours.bottom) then borders.bottom.hide() else borders.bottom.show()
-    if sf.exists(squareFoot.neighbours.left) then borders.left.hide() else borders.left.show()
-    if sf.exists(squareFoot.neighbours.right) then borders.right.hide() else borders.right.show()
-  square.updateBorders()
-  square.coord = squareFoot.coord
-  square.destroy = () ->
-    square.closeButton.remove()
-    value.remove() for key, value of borders
-    square.remove()
   mouseStillInSquare = (event) ->
     if event?
       event = $.event.fix(event)
       inHorizontally = (left < event.pageX < (left + width))
       inVertically = (top < event.pageY < (top + height))
       inHorizontally and inVertically
-  mouseOn  = () -> if not plants.existsAtCoord(squareFoot.coord) then square.closeButton.show()
-  mouseOff = (event) -> if not mouseStillInSquare(event) then square.closeButton.hide()
+  mouseOn  = () -> if not plants.existsAtCoord(squareFoot.coord) then closeButton.show()
+  mouseOff = (event) -> if not mouseStillInSquare(event) then closeButton.hide()
   square.hover mouseOn, mouseOff
-  square.closeButton.hide()
+  # initialise
+  uiSquareFoot.updateBorders()
+  closeButton.hide()
   mouseOn
-  square
+  uiSquareFoot
 
 Raphael.fn.grid = () ->
   canvas = this
@@ -163,23 +183,22 @@ Raphael.fn.grid = () ->
 
 Raphael.fn.plant = (plant) ->
   canvas = this
-  start = plant.start
-  end = plant.end
-  name = plant.name
-  color = plant.color
-  left = le.getLeftForPlantInColumn(start.c)
-  footWidth = end.c - start.c + 1
-  width = ((footWidth-1) * le.columnWidth) + le.plantWidth
-  top = le.getTopForPlantInRow(start.r)
-  footHeight = end.r - start.r + 1
-  height = ((footHeight-1) * le.rowHeight) + le.plantHeight
-  square = canvas.rect(left,top, width, height, 6)
-  square.attr("fill", color)
-  square.attr("stroke-width", "3")
-  centreOfColumn = left + (width /2)
-  centreOfRow = top + (height /2)
-  text = canvas.text(centreOfColumn, centreOfRow, name)
-  text.attr("font-size", "20")
+  widget = new PlantWidget(le, plant)
+  widget.graphics = {}
+  widget.graphics.square = {}
+  widget.graphics.square.object = canvas.rect(widget.left, widget.top, widget.width, widget.height, 6)
+  widget.graphics.square.attributes = {
+    "fill": widget.color
+    "stroke-width": "3"
+  }
+  widget.graphics.text = {}
+  widget.graphics.text.object = canvas.text(widget.centerColumn, widget.centerRow, widget.name)
+  widget.graphics.text.attributes = {
+    "font-size": "20"
+  }
+  for key, value of widget.graphics
+    value.object.attr value.attributes
+  widget
 
 persistance = {}
 
@@ -221,31 +240,39 @@ persistance.plants = [
   {start: {c: 2,r:-1}, end: {c: 2,r:-1}, name:"Marigold", color:"#ffff00"}
 ]
 
-ui = {squareFeet:[]}
-
 paper = Raphael("canvas")
+ui = new UiLayer(paper)
+
 grid = paper.grid()
 $(grid.node).bind "click", (event) ->
   c = le.pixelsToColumn(event.pageX)
   r = le.pixelsToRow(event.pageY)
   squareFoot = sf.add {c:c, r:r}
 
-window.TheObservatory = new Observatory()
+#window.TheObservatory = new Observatory()
 
 plants.subscribe "new", (plant) ->
-  paper.plant plant
+  ui.createPlantWidget plant
 
 sf.subscribe "new", (squareFoot) ->
-  uiSquareFoot = paper.squareFoot(squareFoot)
-  uiSquareFoot.subscribe "remove", (sfToRemove) ->
-    sf.remove sfToRemove.coord
-  ui.squareFeet.push uiSquareFoot
+  ui.createSquareFootWidget squareFoot
   updateBordersOf squareFoot.coord
+
+ui.subscribe "plant/new", (squareFoot) ->
+  plants.add {
+    start: squareFoot.coord
+    end:   squareFoot.coord
+    name:" New Plant"
+    color: "#fff"
+  }
+
+ui.subscribe "squareFoot/delete", (squareFoot) ->
+  sf.remove squareFoot.coord
 
 sf.subscribe "removed", (coord) ->
   uiSquareFoot = (foot for foot in ui.squareFeet when (foot.coord.matches(coord)))[0]
   ui.squareFeet = (foot for foot in ui.squareFeet when not (foot.coord.matches(coord)))
-  uiSquareFoot.destroy()
+  uiSquareFoot.remove()
   updateBordersOf coord
 
 updateBordersOf = (coord) ->

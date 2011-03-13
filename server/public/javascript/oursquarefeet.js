@@ -107,19 +107,21 @@
     return button;
   };
   Raphael.fn.squareFoot = function(squareFoot) {
-    var borders, canvas, closeButtonDim, drawBorder, drawBottomBorder, drawLeftBorder, drawRightBorder, drawTopBorder, height, left, mouseOff, mouseOn, mouseStillInSquare, observatory, square, top, width;
+    var border, borders, canvas, closeButton, closeButtonDim, drawBorder, drawBottomBorder, drawLeftBorder, drawRightBorder, drawTopBorder, height, key, left, mouseOff, mouseOn, mouseStillInSquare, observatory, square, top, uiSquareFoot, width;
     canvas = this;
     left = le.getLeftForColumn(squareFoot.coord.c);
     width = le.columnWidth;
     top = le.getTopForRow(squareFoot.coord.r);
     height = le.rowHeight;
+    closeButtonDim = {
+      left: left + Math.floor(0.8 * width),
+      top: top + Math.floor(0.05 * height),
+      width: Math.floor(0.15 * width),
+      height: Math.floor(0.15 * height)
+    };
     drawBorder = function(from, to) {
       var path;
-      path = canvas.path("M" + from.x + " " + from.y + "L" + to.x + " " + to.y);
-      path.attr("stroke-width", "5");
-      path.attr("stroke-linecap", "round");
-      path.hide();
-      return path;
+      return path = canvas.path("M" + from.x + " " + from.y + "L" + to.x + " " + to.y);
     };
     drawTopBorder = function() {
       return drawBorder({
@@ -158,60 +160,73 @@
       });
     };
     square = canvas.rect(left, top, width, height);
-    square.attr("fill", "#999");
-    square.attr("fill-opacity", "0.5");
-    square.attr("stroke-opacity", "0");
     borders = {
       top: drawTopBorder(),
       bottom: drawBottomBorder(),
       left: drawLeftBorder(),
       right: drawRightBorder()
     };
-    square.borders = borders;
-    closeButtonDim = {
-      left: left + Math.floor(0.8 * width),
-      top: top + Math.floor(0.05 * height),
-      width: Math.floor(0.15 * width),
-      height: Math.floor(0.15 * height)
+    closeButton = canvas.closeButton(closeButtonDim.left, closeButtonDim.top, closeButtonDim.width, closeButtonDim.height);
+    square.attr("fill", "#999");
+    square.attr("fill-opacity", "0.5");
+    square.attr("stroke-opacity", "0");
+    for (key in borders) {
+      border = borders[key];
+      border.attr("stroke-width", "5");
+      border.attr("stroke-linecap", "round");
+      border.hide();
+    }
+    uiSquareFoot = {
+      graphics: {
+        square: square,
+        borders: borders
+      },
+      children: {
+        closeButton: closeButton
+      },
+      remove: function() {
+        var border, key;
+        closeButton.remove();
+        for (key in borders) {
+          border = borders[key];
+          border.remove();
+        }
+        return square.remove();
+      },
+      coord: squareFoot.coord,
+      updateBorders: function() {
+        if (sf.exists(squareFoot.neighbours.top)) {
+          borders.top.hide();
+        } else {
+          borders.top.show();
+        }
+        if (sf.exists(squareFoot.neighbours.bottom)) {
+          borders.bottom.hide();
+        } else {
+          borders.bottom.show();
+        }
+        if (sf.exists(squareFoot.neighbours.left)) {
+          borders.left.hide();
+        } else {
+          borders.left.show();
+        }
+        if (sf.exists(squareFoot.neighbours.right)) {
+          return borders.right.hide();
+        } else {
+          return borders.right.show();
+        }
+      }
     };
-    square.closeButton = canvas.closeButton(closeButtonDim.left, closeButtonDim.top, closeButtonDim.width, closeButtonDim.height);
-    observatory = new Observatory(square);
-    square.closeButton.subscribe("click", function(text) {
+    observatory = new Observatory(uiSquareFoot);
+    square.click(function() {
+      if (!plants.existsAtCoord(squareFoot.coord)) {
+        closeButton.hide();
+        return observatory.publish("plant/new", squareFoot);
+      }
+    });
+    closeButton.subscribe("click", function(text) {
       return observatory.publish("remove", squareFoot);
     });
-    square.updateBorders = function() {
-      if (sf.exists(squareFoot.neighbours.top)) {
-        borders.top.hide();
-      } else {
-        borders.top.show();
-      }
-      if (sf.exists(squareFoot.neighbours.bottom)) {
-        borders.bottom.hide();
-      } else {
-        borders.bottom.show();
-      }
-      if (sf.exists(squareFoot.neighbours.left)) {
-        borders.left.hide();
-      } else {
-        borders.left.show();
-      }
-      if (sf.exists(squareFoot.neighbours.right)) {
-        return borders.right.hide();
-      } else {
-        return borders.right.show();
-      }
-    };
-    square.updateBorders();
-    square.coord = squareFoot.coord;
-    square.destroy = function() {
-      var key, value;
-      square.closeButton.remove();
-      for (key in borders) {
-        value = borders[key];
-        value.remove();
-      }
-      return square.remove();
-    };
     mouseStillInSquare = function(event) {
       var inHorizontally, inVertically, _ref, _ref2;
       if (event != null) {
@@ -223,18 +238,19 @@
     };
     mouseOn = function() {
       if (!plants.existsAtCoord(squareFoot.coord)) {
-        return square.closeButton.show();
+        return closeButton.show();
       }
     };
     mouseOff = function(event) {
       if (!mouseStillInSquare(event)) {
-        return square.closeButton.hide();
+        return closeButton.hide();
       }
     };
     square.hover(mouseOn, mouseOff);
-    square.closeButton.hide();
+    uiSquareFoot.updateBorders();
+    closeButton.hide();
     mouseOn;
-    return square;
+    return uiSquareFoot;
   };
   Raphael.fn.grid = function() {
     var canvas, colPos, drawColumnLine, drawGridLine, drawRowLine, rowPos, square, _i, _j, _len, _len2, _ref, _ref2;
@@ -266,25 +282,27 @@
     return square;
   };
   Raphael.fn.plant = function(plant) {
-    var canvas, centreOfColumn, centreOfRow, color, end, footHeight, footWidth, height, left, name, square, start, text, top, width;
+    var canvas, key, value, widget, _ref;
     canvas = this;
-    start = plant.start;
-    end = plant.end;
-    name = plant.name;
-    color = plant.color;
-    left = le.getLeftForPlantInColumn(start.c);
-    footWidth = end.c - start.c + 1;
-    width = ((footWidth - 1) * le.columnWidth) + le.plantWidth;
-    top = le.getTopForPlantInRow(start.r);
-    footHeight = end.r - start.r + 1;
-    height = ((footHeight - 1) * le.rowHeight) + le.plantHeight;
-    square = canvas.rect(left, top, width, height, 6);
-    square.attr("fill", color);
-    square.attr("stroke-width", "3");
-    centreOfColumn = left + (width / 2);
-    centreOfRow = top + (height / 2);
-    text = canvas.text(centreOfColumn, centreOfRow, name);
-    return text.attr("font-size", "20");
+    widget = new PlantWidget(le, plant);
+    widget.graphics = {};
+    widget.graphics.square = {};
+    widget.graphics.square.object = canvas.rect(widget.left, widget.top, widget.width, widget.height, 6);
+    widget.graphics.square.attributes = {
+      "fill": widget.color,
+      "stroke-width": "3"
+    };
+    widget.graphics.text = {};
+    widget.graphics.text.object = canvas.text(widget.centerColumn, widget.centerRow, widget.name);
+    widget.graphics.text.attributes = {
+      "font-size": "20"
+    };
+    _ref = widget.graphics;
+    for (key in _ref) {
+      value = _ref[key];
+      value.object.attr(value.attributes);
+    }
+    return widget;
   };
   persistance = {};
   persistance.squareFeet = [
@@ -632,10 +650,8 @@
       color: "#ffff00"
     }
   ];
-  ui = {
-    squareFeet: []
-  };
   paper = Raphael("canvas");
+  ui = new UiLayer(paper);
   grid = paper.grid();
   $(grid.node).bind("click", function(event) {
     var c, r, squareFoot;
@@ -646,18 +662,23 @@
       r: r
     });
   });
-  window.TheObservatory = new Observatory();
   plants.subscribe("new", function(plant) {
-    return paper.plant(plant);
+    return ui.createPlantWidget(plant);
   });
   sf.subscribe("new", function(squareFoot) {
-    var uiSquareFoot;
-    uiSquareFoot = paper.squareFoot(squareFoot);
-    uiSquareFoot.subscribe("remove", function(sfToRemove) {
-      return sf.remove(sfToRemove.coord);
-    });
-    ui.squareFeet.push(uiSquareFoot);
+    ui.createSquareFootWidget(squareFoot);
     return updateBordersOf(squareFoot.coord);
+  });
+  ui.subscribe("plant/new", function(squareFoot) {
+    return plants.add({
+      start: squareFoot.coord,
+      end: squareFoot.coord,
+      name: " New Plant",
+      color: "#fff"
+    });
+  });
+  ui.subscribe("squareFoot/delete", function(squareFoot) {
+    return sf.remove(squareFoot.coord);
   });
   sf.subscribe("removed", function(coord) {
     var foot, uiSquareFoot;
@@ -685,7 +706,7 @@
       }
       return _results;
     })();
-    uiSquareFoot.destroy();
+    uiSquareFoot.remove();
     return updateBordersOf(coord);
   });
   updateBordersOf = function(coord) {

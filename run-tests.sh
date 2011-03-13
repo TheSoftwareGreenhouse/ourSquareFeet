@@ -9,4 +9,6 @@
 ./bin/vows ./test/unit/plant-test.coffee
 ./bin/vows ./test/unit/plants-test.coffee
 ./bin/vows ./test/unit/observatory-test.coffee
+./bin/vows ./test/unit/plantWidget-test.coffee
+./bin/vows ./test/unit/uiLayer-test.coffee
 
