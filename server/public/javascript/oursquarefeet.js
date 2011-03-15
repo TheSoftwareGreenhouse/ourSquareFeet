@@ -19,17 +19,13 @@
     canvas = this;
     return canvas.path("M" + left + " " + top + "L" + (left + width) + " " + (top + height));
   };
-  Raphael.fn.closeButton = function(left, top, width, height) {
-    var button, canvas, click, cross, factor, formatPath, graphic, key, mouseOff, mouseOn, observatory, path, rect, slashDown, slashUp, _i, _len, _ref, _ref2, _ref3;
+  Raphael.fn.closeButton = function(top, right) {
+    var button, canvas, click, cross, factor, formatPath, graphic, key, mouseOff, mouseOn, observatory, path, rect, slashDown, slashUp, widget, _i, _len, _ref, _ref2, _ref3;
     canvas = this;
+    widget = CloseButtonWidget(le, top, right);
     factor = 0.25;
-    cross = {
-      left: left + Math.floor(factor * width),
-      top: top + Math.floor(factor * height),
-      width: Math.floor((1 - (1.5 * factor)) * width),
-      height: Math.floor((1 - (1.5 * factor)) * height)
-    };
-    rect = canvas.rect(left, top, width, height, 3);
+    cross = widget.cross;
+    rect = canvas.rect(widget.left, widget.top, widget.width, widget.height, 3);
     slashUp = canvas.straightLine(cross.left, cross.top + cross.height, cross.width, -cross.height);
     slashDown = canvas.straightLine(cross.left, cross.top, cross.width, cross.height);
     rect.attr({
@@ -166,7 +162,7 @@
       left: drawLeftBorder(),
       right: drawRightBorder()
     };
-    closeButton = canvas.closeButton(closeButtonDim.left, closeButtonDim.top, closeButtonDim.width, closeButtonDim.height);
+    closeButton = canvas.closeButton(top, left + width);
     square.attr("fill", "#999");
     square.attr("fill-opacity", "0.5");
     square.attr("stroke-opacity", "0");
@@ -282,26 +278,22 @@
     return square;
   };
   Raphael.fn.plant = function(plant) {
-    var canvas, key, value, widget, _ref;
+    var canvas, closeButton, widget;
     canvas = this;
     widget = new PlantWidget(le, plant);
-    widget.graphics = {};
-    widget.graphics.square = {};
-    widget.graphics.square.object = canvas.rect(widget.left, widget.top, widget.width, widget.height, 6);
-    widget.graphics.square.attributes = {
-      "fill": widget.color,
-      "stroke-width": "3"
-    };
-    widget.graphics.text = {};
-    widget.graphics.text.object = canvas.text(widget.centerColumn, widget.centerRow, widget.name);
-    widget.graphics.text.attributes = {
-      "font-size": "20"
-    };
-    _ref = widget.graphics;
-    for (key in _ref) {
-      value = _ref[key];
-      value.object.attr(value.attributes);
-    }
+    widget.addRect(canvas.rect(widget.left, widget.top, widget.width, widget.height, 6));
+    widget.addText(canvas.text(widget.centerColumn, widget.centerRow, widget.name));
+    widget.applyAttributes({
+      rect: {
+        "fill": widget.color,
+        "stroke-width": "3"
+      },
+      text: {
+        "font-size": "20"
+      }
+    });
+    closeButton = canvas.closeButton(widget.top, widget.left + widget.width);
+    widget.addCloseButtonWidget(closeButton);
     return widget;
   };
   persistance = {};
@@ -663,7 +655,12 @@
     });
   });
   plants.subscribe("new", function(plant) {
-    return ui.createPlantWidget(plant);
+    ui.createPlantWidget(plant);
+    return console.log("There are " + ui.plants.length + " plant widgets");
+  });
+  plants.subscribe("deleted", function(plant) {
+    ui.removePlantWidget(plant);
+    return console.log("There are " + ui.plants.length + " plant widgets");
   });
   sf.subscribe("new", function(squareFoot) {
     ui.createSquareFootWidget(squareFoot);
@@ -676,6 +673,9 @@
       name: " New Plant",
       color: "#fff"
     });
+  });
+  ui.subscribe("plant/delete", function(plant) {
+    return plants.remove(plant.start);
   });
   ui.subscribe("squareFoot/delete", function(squareFoot) {
     return sf.remove(squareFoot.coord);

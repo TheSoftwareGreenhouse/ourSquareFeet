@@ -1,22 +1,27 @@
 (function() {
-  var PlantWidget, root;
+  var Observatory, PlantWidget, root;
+  Observatory = typeof exports != "undefined" && exports !== null ? require('./../observatory').Observatory : this.Observatory;
   root = typeof exports != "undefined" && exports !== null ? exports : this;
   PlantWidget = function(layoutEngine, plant) {
-    var centerOfColumn, centerOfRow, color, end, footHeight, footWidth, height, le, left, name, start, top, width;
+    var centerOfColumn, centerOfRow, color, columnWidth, end, footHeight, footWidth, height, le, left, mouseStillInPlant, name, rowHeight, start, top, widget, width, _children, _mouseOut, _mouseOver, _observatory, _primitives;
     le = layoutEngine;
     start = plant.start;
     end = plant.end;
     name = plant.name;
     color = plant.color;
+    columnWidth = le.columnWidth;
+    rowHeight = le.rowHeight;
     left = le.getLeftForPlantInColumn(start.c);
     footWidth = end.c - start.c + 1;
-    width = ((footWidth - 1) * le.columnWidth) + le.plantWidth;
+    width = ((footWidth - 1) * columnWidth) + le.plantWidth;
     top = le.getTopForPlantInRow(start.r);
     footHeight = end.r - start.r + 1;
-    height = ((footHeight - 1) * le.rowHeight) + le.plantHeight;
+    height = ((footHeight - 1) * rowHeight) + le.plantHeight;
     centerOfColumn = left + (width / 2);
     centerOfRow = top + (height / 2);
-    return {
+    _primitives = {};
+    _children = {};
+    widget = {
       top: top,
       left: left,
       width: width,
@@ -24,8 +29,70 @@
       centerRow: centerOfRow,
       centerColumn: centerOfColumn,
       color: color,
-      name: name
+      name: name,
+      children: _children,
+      represents: function(anotherPlant) {
+        return anotherPlant === plant;
+      },
+      primitives: _primitives,
+      addRect: function(rect) {
+        rect.hover(_mouseOver, _mouseOut);
+        return _primitives.rect = rect;
+      },
+      addText: function(text) {
+        text.hover(_mouseOver, _mouseOut);
+        return _primitives.text = text;
+      },
+      applyAttributes: function(attributes) {
+        var attribute, primitive, _results;
+        _results = [];
+        for (primitive in attributes) {
+          attribute = attributes[primitive];
+          _results.push(_primitives[primitive].attr(attribute));
+        }
+        return _results;
+      }
     };
+    mouseStillInPlant = function(event) {
+      var inHorizontally, inVertically, _ref, _ref2;
+      if (event != null) {
+        event = $.event.fix(event);
+        inHorizontally = (left < (_ref = event.pageX) && _ref < (left + width));
+        inVertically = (top < (_ref2 = event.pageY) && _ref2 < (top + height));
+        return inHorizontally && inVertically;
+      }
+    };
+    _mouseOver = function() {
+      if (_children.closeButton != null) {
+        return _children.closeButton.show();
+      }
+    };
+    _mouseOut = function(event) {
+      if ((_children.closeButton != null) && !mouseStillInPlant(event)) {
+        return _children.closeButton.hide();
+      }
+    };
+    _observatory = new Observatory(widget);
+    widget.addCloseButtonWidget = function(closeButtonWidget) {
+      _children.closeButton = closeButtonWidget;
+      _children.closeButton.subscribe("click", function() {
+        return _observatory.publish("delete", plant);
+      });
+      return _children.closeButton.hide();
+    };
+    widget.remove = function() {
+      var key, primitive, _results;
+      if (_children.closeButton != null) {
+        _children.closeButton.remove();
+      }
+      _results = [];
+      for (key in _primitives) {
+        primitive = _primitives[key];
+        _results.push(primitive.remove());
+      }
+      return _results;
+    };
+    return widget;
   };
   root.PlantWidget = PlantWidget;
 }).call(this);

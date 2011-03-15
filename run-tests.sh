@@ -10,5 +10,6 @@
 ./bin/vows ./test/unit/plants-test.coffee
 ./bin/vows ./test/unit/observatory-test.coffee
 ./bin/vows ./test/unit/plantWidget-test.coffee
+./bin/vows ./test/unit/closeButtonWidget-test.coffee
 ./bin/vows ./test/unit/uiLayer-test.coffee
 

@@ -19,18 +19,14 @@ Raphael.fn.straightLine = (left, top, width, height) ->
   canvas = this
   canvas.path("M#{left} #{top}L#{left+width} #{top+height}")
 
-Raphael.fn.closeButton = (left, top, width, height) ->
+Raphael.fn.closeButton = (top, right) ->
   canvas = this
   # calculate layout
+  widget = CloseButtonWidget(le, top, right)
   factor = 0.25
-  cross = {
-    left:  left + Math.floor(factor * width)
-    top:   top + Math.floor(factor * height)
-    width: Math.floor((1-(1.5*factor)) * width)
-    height:Math.floor((1-(1.5*factor)) * height)
-  }
+  cross = widget.cross
   # build Raphael objects
-  rect = canvas.rect(left,top,width, height, 3)
+  rect = canvas.rect(widget.left, widget.top, widget.width, widget.height, 3)
   slashUp = canvas.straightLine(cross.left, cross.top + cross.height, cross.width, -cross.height)
   slashDown = canvas.straightLine(cross.left, cross.top, cross.width, cross.height)
   # format objects
@@ -111,7 +107,7 @@ Raphael.fn.squareFoot = (squareFoot) ->
     left:   drawLeftBorder()
     right:  drawRightBorder()
   }
-  closeButton = canvas.closeButton(closeButtonDim.left, closeButtonDim.top, closeButtonDim.width, closeButtonDim.height)
+  closeButton = canvas.closeButton(top, left + width)
   # format Raphael objects
   square.attr("fill", "#999")
   square.attr("fill-opacity", "0.5")
@@ -184,20 +180,21 @@ Raphael.fn.grid = () ->
 Raphael.fn.plant = (plant) ->
   canvas = this
   widget = new PlantWidget(le, plant)
-  widget.graphics = {}
-  widget.graphics.square = {}
-  widget.graphics.square.object = canvas.rect(widget.left, widget.top, widget.width, widget.height, 6)
-  widget.graphics.square.attributes = {
-    "fill": widget.color
-    "stroke-width": "3"
-  }
-  widget.graphics.text = {}
-  widget.graphics.text.object = canvas.text(widget.centerColumn, widget.centerRow, widget.name)
-  widget.graphics.text.attributes = {
+  # draw primivites
+  widget.addRect canvas.rect(widget.left, widget.top, widget.width, widget.height, 6)
+  widget.addText canvas.text(widget.centerColumn, widget.centerRow, widget.name)
+  widget.applyAttributes {
+    rect: {
+      "fill": widget.color
+      "stroke-width": "3"
+    }
+    text: {
     "font-size": "20"
+    }
   }
-  for key, value of widget.graphics
-    value.object.attr value.attributes
+  # draw children
+  closeButton = canvas.closeButton widget.top, widget.left + widget.width
+  widget.addCloseButtonWidget closeButton
   widget
 
 persistance = {}
@@ -243,19 +240,26 @@ persistance.plants = [
 paper = Raphael("canvas")
 ui = new UiLayer(paper)
 
+# REMINDER: move the grid into the UiLayer
 grid = paper.grid()
 $(grid.node).bind "click", (event) ->
   c = le.pixelsToColumn(event.pageX)
   r = le.pixelsToRow(event.pageY)
   squareFoot = sf.add {c:c, r:r}
 
-#window.TheObservatory = new Observatory()
+# REMINDER: create Model Layer for sf and plants
 
 plants.subscribe "new", (plant) ->
   ui.createPlantWidget plant
+  console.log "There are #{ui.plants.length} plant widgets"
+
+plants.subscribe "deleted", (plant) ->
+  ui.removePlantWidget plant
+  console.log "There are #{ui.plants.length} plant widgets"
 
 sf.subscribe "new", (squareFoot) ->
   ui.createSquareFootWidget squareFoot
+  # REMINDER: move updateBordersOf into ui Layer
   updateBordersOf squareFoot.coord
 
 ui.subscribe "plant/new", (squareFoot) ->
@@ -266,14 +270,19 @@ ui.subscribe "plant/new", (squareFoot) ->
     color: "#fff"
   }
 
+ui.subscribe "plant/delete", (plant) ->
+  plants.remove plant.start
+
 ui.subscribe "squareFoot/delete", (squareFoot) ->
   sf.remove squareFoot.coord
 
+# REMINDER: The ui object should handle this event
 sf.subscribe "removed", (coord) ->
   uiSquareFoot = (foot for foot in ui.squareFeet when (foot.coord.matches(coord)))[0]
   ui.squareFeet = (foot for foot in ui.squareFeet when not (foot.coord.matches(coord)))
   uiSquareFoot.remove()
   updateBordersOf coord
+
 
 updateBordersOf = (coord) ->
   getUiSquareFoot = (coord) ->

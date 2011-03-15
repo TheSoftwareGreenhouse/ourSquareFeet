@@ -14,8 +14,17 @@ UiLayer = (paper) ->
       _observatory.publish "plant/new", squareFootToPlantAt
     @.squareFeet.push widget
     widget
+  @.plants = []
   @.createPlantWidget = (plant) ->
-    paper.plant plant
+    widget = paper.plant plant
+    widget.subscribe "delete", (plantToDelete) ->
+      _observatory.publish "plant/delete", plantToDelete
+    @.plants.push widget
+    widget
+  @.removePlantWidget = (plant) ->
+    widget = (widget for widget in @.plants when widget.represents(plant))[0]
+    @.plants = (plantWidget for plantWidget in @.plants when not plantWidget.represents(plant))
+    widget.remove() if widget?
   @
 
 root.UiLayer = UiLayer
