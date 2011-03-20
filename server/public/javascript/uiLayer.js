@@ -26,6 +26,9 @@
       widget.subscribe("delete", function(plantToDelete) {
         return _observatory.publish("plant/delete", plantToDelete);
       });
+      widget.onEditName(function(newName) {
+        return _observatory.publish("plant/editName", widget.plant, newName);
+      });
       this.plants.push(widget);
       return widget;
     };
@@ -37,7 +40,7 @@
         _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           widget = _ref[_i];
-          if (widget.represents(plant)) {
+          if (widget.isAt(plant.start)) {
             _results.push(widget);
           }
         }
@@ -49,7 +52,7 @@
         _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           plantWidget = _ref[_i];
-          if (!plantWidget.represents(plant)) {
+          if (!plantWidget.isAt(plant.start)) {
             _results.push(plantWidget);
           }
         }
@@ -58,6 +61,9 @@
       if (widget != null) {
         return widget.remove();
       }
+    };
+    this.onEditPlantName = function(callback) {
+      return _observatory.subscribe("plant/editName", callback);
     };
     return this;
   };

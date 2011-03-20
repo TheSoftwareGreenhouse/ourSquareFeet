@@ -19,12 +19,16 @@ UiLayer = (paper) ->
     widget = paper.plant plant
     widget.subscribe "delete", (plantToDelete) ->
       _observatory.publish "plant/delete", plantToDelete
+    widget.onEditName (newName) ->
+      _observatory.publish "plant/editName", widget.plant, newName
     @.plants.push widget
     widget
   @.removePlantWidget = (plant) ->
-    widget = (widget for widget in @.plants when widget.represents(plant))[0]
-    @.plants = (plantWidget for plantWidget in @.plants when not plantWidget.represents(plant))
+    widget = (widget for widget in @.plants when widget.isAt(plant.start))[0]
+    @.plants = (plantWidget for plantWidget in @.plants when not plantWidget.isAt(plant.start))
     widget.remove() if widget?
+  @.onEditPlantName = (callback) ->
+    _observatory.subscribe "plant/editName", callback
   @
 
 root.UiLayer = UiLayer

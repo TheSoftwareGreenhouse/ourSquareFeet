@@ -1,12 +1,14 @@
 (function() {
-  var Observatory, PlantWidget, root;
+  var Observatory, PlantWidget, Rectangle, root;
   Observatory = typeof exports != "undefined" && exports !== null ? require('./../observatory').Observatory : this.Observatory;
+  Rectangle = typeof exports != "undefined" && exports !== null ? require('./../rectangle').Rectangle : this.Rectangle;
   root = typeof exports != "undefined" && exports !== null ? exports : this;
   PlantWidget = function(layoutEngine, plant) {
-    var centerOfColumn, centerOfRow, color, columnWidth, end, footHeight, footWidth, height, le, left, mouseStillInPlant, name, rowHeight, start, top, widget, width, _children, _mouseOut, _mouseOver, _observatory, _primitives;
+    var centerOfColumn, centerOfRow, color, columnWidth, end, footHeight, footWidth, height, le, left, mouseStillInPlant, name, rectangle, rowHeight, start, top, widget, width, _children, _mouseOut, _mouseOver, _observatory, _primitives;
     le = layoutEngine;
     start = plant.start;
     end = plant.end;
+    rectangle = new Rectangle(start, end);
     name = plant.name;
     color = plant.color;
     columnWidth = le.columnWidth;
@@ -31,8 +33,8 @@
       color: color,
       name: name,
       children: _children,
-      represents: function(anotherPlant) {
-        return anotherPlant === plant;
+      isAt: function(coord) {
+        return rectangle.containsCoord(coord);
       },
       primitives: _primitives,
       addRect: function(rect) {
@@ -51,7 +53,8 @@
           _results.push(_primitives[primitive].attr(attribute));
         }
         return _results;
-      }
+      },
+      plant: plant
     };
     mouseStillInPlant = function(event) {
       var inHorizontally, inVertically, _ref, _ref2;
@@ -79,6 +82,12 @@
         return _observatory.publish("delete", plant);
       });
       return _children.closeButton.hide();
+    };
+    widget.onEditName = function(callback) {
+      _primitives.text.onChange(function(newText) {
+        return _observatory.publish("editName", newText);
+      });
+      return _observatory.subscribe("editName", callback);
     };
     widget.remove = function() {
       var key, primitive, _results;

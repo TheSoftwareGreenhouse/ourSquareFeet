@@ -177,12 +177,16 @@ Raphael.fn.grid = () ->
   drawRowLine rowPos for rowPos in le.rowPositions
   square
 
+Raphael.fn.editableText = (x, y, text) ->
+  canvas = this
+  new EditableTextWidget(canvas,x,y,text)
+
 Raphael.fn.plant = (plant) ->
   canvas = this
   widget = new PlantWidget(le, plant)
   # draw primivites
   widget.addRect canvas.rect(widget.left, widget.top, widget.width, widget.height, 6)
-  widget.addText canvas.text(widget.centerColumn, widget.centerRow, widget.name)
+  widget.addText canvas.editableText(widget.centerColumn, widget.centerRow, widget.name)
   widget.applyAttributes {
     rect: {
       "fill": widget.color
@@ -247,16 +251,19 @@ $(grid.node).bind "click", (event) ->
   r = le.pixelsToRow(event.pageY)
   squareFoot = sf.add {c:c, r:r}
 
-# REMINDER: create Model Layer for sf and plants
+model = new Model(plants)
 
-plants.subscribe "new", (plant) ->
+model.onPlantNew (plant) ->
   ui.createPlantWidget plant
-  console.log "There are #{ui.plants.length} plant widgets"
 
-plants.subscribe "deleted", (plant) ->
+model.onPlantDeleted (plant) ->
   ui.removePlantWidget plant
-  console.log "There are #{ui.plants.length} plant widgets"
 
+model.onPlantChanged (plant) ->
+  ui.removePlantWidget plant
+  ui.createPlantWidget plant
+
+# move this event inside model
 sf.subscribe "new", (squareFoot) ->
   ui.createSquareFootWidget squareFoot
   # REMINDER: move updateBordersOf into ui Layer
@@ -270,11 +277,16 @@ ui.subscribe "plant/new", (squareFoot) ->
     color: "#fff"
   }
 
+
 ui.subscribe "plant/delete", (plant) ->
   plants.remove plant.start
 
 ui.subscribe "squareFoot/delete", (squareFoot) ->
   sf.remove squareFoot.coord
+
+ui.onEditPlantName (plant, newName) ->
+  model.updatePlantName plant, newName
+
 
 # REMINDER: The ui object should handle this event
 sf.subscribe "removed", (coord) ->

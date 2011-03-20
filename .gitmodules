@@ -1,0 +1,3 @@
+[submodule "modules/recorderMock.js"]
+	path = modules/recorderMock.js
+	url = git@github.com:gogza/recorderMock.js.git

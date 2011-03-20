@@ -15,7 +15,7 @@
     unsubscribe = function(handle) {
       var subscriber, t;
       t = handle[0];
-      if (!(cache[t] != null)) {
+      if (cache[t] != null) {
         return cache[t] = (function() {
           var _i, _len, _ref, _results;
           _ref = cache[t];

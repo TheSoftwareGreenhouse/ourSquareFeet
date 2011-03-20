@@ -45,6 +45,9 @@
       _observatory.publish('removed', coordinate);
       return true;
     };
+    this.updatePlantName = function(plant, newName) {
+      return alert(newName);
+    };
     return this;
   };
   root.SquareFeet = SquareFeet;

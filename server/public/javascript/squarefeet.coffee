@@ -18,6 +18,8 @@ SquareFeet = () ->
     _feet = (foot for foot in _feet when not (foot.coord.matches(coordinate)))
     _observatory.publish 'removed', coordinate
     true
+  this.updatePlantName = (plant, newName) ->
+    alert newName
   this
 
 

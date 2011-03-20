@@ -12,6 +12,7 @@ root = exports ? this
 Observatory = (host) ->
   # the topic/subscription hash
   cache = {}
+
   subscribe = (topic, callback) ->
     # summary:
     #		Register a callback on a named topic.
@@ -32,6 +33,7 @@ Observatory = (host) ->
       cache[topic] = []
     cache[topic].push callback
     [topic, callback] # Array
+
   unsubscribe = (handle) ->
     # summary:
     #		Disconnect a subscribed function for a topic.
@@ -41,8 +43,10 @@ Observatory = (host) ->
     #	|	var handle = $.subscribe("/something", function(){});
     #	|	$.unsubscribe(handle);
     t = handle[0]
-    if not cache[t]?
+    if cache[t]? then (
       cache[t] = (subscriber for subscriber in cache[t] when (subscriber isnt handle[1]))
+    )
+
   if host?
     host.subscribe = subscribe
     host.unsubscribe = unsubscribe

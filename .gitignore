@@ -8,4 +8,24 @@
 
 bin # ignore the bin folder - created by ndistro
 
+lib/node/daemon
+lib/node/express
+lib/node/jade
+lib/node/node-optimist
+lib/node/optimist
+lib/node/zombie
+modules/colors.js
+modules/daemon.node
+modules/express
+modules/forever
+modules/haml-js
+modules/jade
+modules/jsdom
+modules/node-jake
+modules/node-optimist
+modules/sizzle
+modules/vows
+modules/coffee-script
+modules/zombie
+
 lib/node/*.js

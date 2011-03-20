@@ -1,5 +1,5 @@
 (function() {
-  var config, grid, height, le, paper, persistance, plant, plants, sf, squareFoot, ui, updateBordersOf, width, _i, _j, _len, _len2, _ref, _ref2;
+  var config, grid, height, le, model, paper, persistance, plant, plants, sf, squareFoot, ui, updateBordersOf, width, _i, _j, _len, _len2, _ref, _ref2;
   config = {
     top: 0,
     right: 3000,
@@ -277,12 +277,17 @@
     }
     return square;
   };
+  Raphael.fn.editableText = function(x, y, text) {
+    var canvas;
+    canvas = this;
+    return new EditableTextWidget(canvas, x, y, text);
+  };
   Raphael.fn.plant = function(plant) {
     var canvas, closeButton, widget;
     canvas = this;
     widget = new PlantWidget(le, plant);
     widget.addRect(canvas.rect(widget.left, widget.top, widget.width, widget.height, 6));
-    widget.addText(canvas.text(widget.centerColumn, widget.centerRow, widget.name));
+    widget.addText(canvas.editableText(widget.centerColumn, widget.centerRow, widget.name));
     widget.applyAttributes({
       rect: {
         "fill": widget.color,
@@ -654,13 +659,16 @@
       r: r
     });
   });
-  plants.subscribe("new", function(plant) {
-    ui.createPlantWidget(plant);
-    return console.log("There are " + ui.plants.length + " plant widgets");
+  model = new Model(plants);
+  model.onPlantNew(function(plant) {
+    return ui.createPlantWidget(plant);
   });
-  plants.subscribe("deleted", function(plant) {
+  model.onPlantDeleted(function(plant) {
+    return ui.removePlantWidget(plant);
+  });
+  model.onPlantChanged(function(plant) {
     ui.removePlantWidget(plant);
-    return console.log("There are " + ui.plants.length + " plant widgets");
+    return ui.createPlantWidget(plant);
   });
   sf.subscribe("new", function(squareFoot) {
     ui.createSquareFootWidget(squareFoot);
@@ -679,6 +687,9 @@
   });
   ui.subscribe("squareFoot/delete", function(squareFoot) {
     return sf.remove(squareFoot.coord);
+  });
+  ui.onEditPlantName(function(plant, newName) {
+    return model.updatePlantName(plant, newName);
   });
   sf.subscribe("removed", function(coord) {
     var foot, uiSquareFoot;

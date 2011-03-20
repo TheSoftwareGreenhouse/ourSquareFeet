@@ -1,4 +1,5 @@
 Observatory = if exports? then require('./../observatory').Observatory else this.Observatory
+Rectangle = if exports? then require('./../rectangle').Rectangle else this.Rectangle
 
 root = exports ? this
 
@@ -7,6 +8,7 @@ PlantWidget = (layoutEngine, plant) ->
   # calculate layout
   start = plant.start
   end = plant.end
+  rectangle = new Rectangle(start, end)
   name = plant.name
   color = plant.color
   columnWidth = le.columnWidth
@@ -32,8 +34,8 @@ PlantWidget = (layoutEngine, plant) ->
     color: color
     name: name
     children: _children
-    represents: (anotherPlant) ->
-      anotherPlant == plant
+    isAt: (coord) ->
+      rectangle.containsCoord coord
     primitives: _primitives
     addRect: (rect) ->
      rect.hover _mouseOver, _mouseOut
@@ -44,6 +46,7 @@ PlantWidget = (layoutEngine, plant) ->
     applyAttributes: (attributes) ->
       for primitive, attribute of attributes
         _primitives[primitive].attr attribute
+    plant: plant
   }
   mouseStillInPlant = (event) ->
     if event?
@@ -63,6 +66,10 @@ PlantWidget = (layoutEngine, plant) ->
     _children.closeButton.subscribe "click", () ->
       _observatory.publish "delete", plant
     _children.closeButton.hide()
+  widget.onEditName = (callback) ->
+    _primitives.text.onChange (newText) ->
+      _observatory.publish "editName", newText
+    _observatory.subscribe "editName", callback
   widget.remove = () ->
     _children.closeButton.remove() if _children.closeButton?
     for key, primitive of _primitives
