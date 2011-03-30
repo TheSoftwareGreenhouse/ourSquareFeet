@@ -41,6 +41,8 @@ vows.describe('UiLayer').addBatch({
       assert.isFunction topic.sut.removePlantWidget
     'then it has a onEditPlantName method': (topic) ->
       assert.isFunction topic.sut.onEditPlantName
+    'then it has a onPlantNew method': (topic) ->
+      assert.isFunction topic.sut.onPlantNew
     'when creating a Plant widget': {
       topic: (topic) ->
         topic.actuals.plantWidget = topic.sut.createPlantWidget {}
@@ -99,15 +101,15 @@ vows.describe('UiLayer').addBatch({
         assert.include topic.sut.squarefeet, topic.mocks.squareFootWidget
       'when the squarefoot widget publishes a new plant event': {
         topic: (topic) ->
-          topic.actuals.squareFootWidget = null
-          topic.sut.subscribe "plant/new", (result) ->
-            topic.actuals.squareFootWidget = result
+          topic.actuals.newsquareFootWidget = null
+          topic.sut.onPlantNew (result) ->
+            topic.actuals.newsquareFootWidget = result
           topic.mocks.squareFootWidget.observatory.publish "plant/new", topic.mocks.squareFootWidget
           topic
         'then the plant/new event is published': (topic) ->
-          assert.isNotNull topic.actuals.squareFootWidget
+          assert.isNotNull topic.actuals.newsquareFootWidget
         'then the correct squareFoot is published': (topic) ->
-          assert.equal topic.actuals.squareFootWidget, topic.mocks.squareFootWidget
+          assert.equal topic.actuals.newsquareFootWidget, topic.mocks.squareFootWidget
       }
       'when the square foot widget publishes a delete event': {
         topic: (topic) ->

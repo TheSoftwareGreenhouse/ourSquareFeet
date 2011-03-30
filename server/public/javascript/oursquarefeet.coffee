@@ -269,7 +269,8 @@ sf.subscribe "new", (squareFoot) ->
   # REMINDER: move updateBordersOf into ui Layer
   updateBordersOf squareFoot.coord
 
-ui.subscribe "plant/new", (squareFoot) ->
+# REMINDER: change these into more descriptive method names
+ui.onPlantNew (squareFoot) ->
   plants.add {
     start: squareFoot.coord
     end:   squareFoot.coord

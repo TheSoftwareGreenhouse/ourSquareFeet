@@ -65,6 +65,9 @@
     this.onEditPlantName = function(callback) {
       return _observatory.subscribe("plant/editName", callback);
     };
+    this.onPlantNew = function(callback) {
+      return _observatory.subscribe("plant/new", callback);
+    };
     return this;
   };
   root.UiLayer = UiLayer;

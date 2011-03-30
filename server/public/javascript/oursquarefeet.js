@@ -674,7 +674,7 @@
     ui.createSquareFootWidget(squareFoot);
     return updateBordersOf(squareFoot.coord);
   });
-  ui.subscribe("plant/new", function(squareFoot) {
+  ui.onPlantNew(function(squareFoot) {
     return plants.add({
       start: squareFoot.coord,
       end: squareFoot.coord,

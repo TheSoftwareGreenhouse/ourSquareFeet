@@ -29,6 +29,8 @@ UiLayer = (paper) ->
     widget.remove() if widget?
   @.onEditPlantName = (callback) ->
     _observatory.subscribe "plant/editName", callback
+  @.onPlantNew = (callback) ->
+    _observatory.subscribe "plant/new", callback
   @
 
 root.UiLayer = UiLayer
